@@ -7,17 +7,19 @@ import { lucideChevronDown } from '@ng-icons/lucide';
   standalone: true,
   imports: [NgIcon],
   template: `
-    <div class="flex flex-col gap-1">
-      <button (click)="collapsed.set(!collapsed())" class="section-header flex justify-between items-center w-full">
+    <div class="flex flex-col gap-1.5">
+      <button
+        (click)="collapsed.set(!collapsed())"
+        class="flex w-full items-center justify-between rounded-md px-1 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-fg-dim transition-colors hover:text-fg-muted">
         <span>{{ label() }}</span>
         <ng-icon
           name="lucideChevronDown"
-          class="transition-transform duration-200"
+          class="text-[0.7rem] transition-transform duration-200"
           [class.rotate-90]="collapsed()"
         />
       </button>
       <div class="collapsible" [class.collapsed]="collapsed()">
-        <div>
+        <div class="space-y-1">
           <ng-content />
         </div>
       </div>

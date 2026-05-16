@@ -10,8 +10,8 @@ import { Component, input } from '@angular/core';
                  bg-destructive px-1 text-[9px]
                  font-bold text-white
                  border-1 border-red-800">
-          {{ badge() > 99 ? '99+' : badge() }}
-        </span>
+        {{ badge() > 99 ? '99+' : badge() }}
+      </span>
     }
   `
 })

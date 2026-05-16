@@ -22,6 +22,21 @@ export const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     canActivate: [authGuard],
-    pathMatch: 'full',
+    children: [
+      {
+        path: 'space/:spaceId',
+        loadComponent: () => import('./layout/main/space-layout').then(m => m.SpaceLayout),
+        children: [
+          { path: 'categories', loadComponent: () => import('./features/categories/categories-page.component') },
+          { path: 'calendar',   loadComponent: () => import('./features/calendar/calendar-page.component') },
+          { path: 'schedule',   loadComponent: () => import('./features/schedule/schedule-page.component') },
+        ],
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => import('./layout/main/dashboard-layout').then(m => m.DashboardLayout),
+      },
+    ],
   },
 ];

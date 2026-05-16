@@ -1,23 +1,20 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AppSidebar } from './app-sidebar';
+import { SpaceSidebar } from '../../features/sidebars/space/space-sidebar';
+import { NotificationComponent } from '../../shared/notification/notification.component';
 
 @Component({
   selector: 'layout',
-  imports: [RouterOutlet, AppSidebar],
+  imports: [RouterOutlet, SpaceSidebar, NotificationComponent],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class: 'block',
-  },
+  host: { class: 'flex h-screen' },
   template: `
-    <div class="flex h-screen">
-      <app-layout-sidebar></app-layout-sidebar>
-      <div class="flex-1 p-4">
-        <router-outlet />
-      </div>
+    <space-sidebar />
+    <div class="flex flex-1 min-w-0 h-full">
+      <router-outlet />
     </div>
+    <app-notification />
   `,
-  providers: [],
 })
 export default class MainLayoutComponent {}

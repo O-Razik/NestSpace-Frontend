@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { NgIcon } from '@ng-icons/core';
 import { Badge } from '../../../shared/badge';
 
@@ -6,15 +6,14 @@ import { Badge } from '../../../shared/badge';
   selector: 'channel-item',
   imports: [NgIcon, Badge],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
   template: `
     <div
-      class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 transition-colors hover:bg-sidebar-accent"
-      [class.bg-sidebar-accent]="active()">
+      class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 transition-colors duration-150 hover:bg-[var(--accent-bg)]"
+      [style.background]="active() ? 'var(--accent-bg)' : null">
       <ng-icon
         [name]="icon()"
         class="shrink-0 text-lg"
-        [class.text-primary]="active()"
+        [style.color]="active() ? 'var(--accent-color)' : null"
         [class.text-muted-foreground]="!active()" />
       <div class="flex min-w-0 flex-1 flex-col">
         <span

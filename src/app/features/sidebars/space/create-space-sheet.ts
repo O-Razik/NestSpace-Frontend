@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { of, switchMap } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCamera, lucideImagePlus, lucidePlus } from '@ng-icons/lucide';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmIcon } from '@spartan-ng/helm/icon';
@@ -11,10 +12,12 @@ import { HlmInputImports } from '@spartan-ng/helm/input';
 import { HlmSheet, HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { AuthService } from '../../../core/auth/auth.service';
 import { SpaceService } from '../../../core/space/space.service';
+import { UserDtoShort } from '../../../core/auth/auth.models';
+import { UserSearchInline } from '../../../shared/user-search/user-search-inline';
 
 @Component({
   selector: 'create-space-sheet',
-  imports: [ReactiveFormsModule, HlmButtonImports, HlmFieldImports, HlmInputImports, HlmSheetImports, HlmIcon, NgIcon],
+  imports: [ReactiveFormsModule, HlmButtonImports, HlmFieldImports, HlmInputImports, HlmSheetImports, HlmIcon, NgIcon, UserSearchInline, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ lucidePlus, lucideImagePlus, lucideCamera })],
   host: { class: 'flex justify-center' },
@@ -30,8 +33,8 @@ import { SpaceService } from '../../../core/space/space.service';
 
       <hlm-sheet-content *hlmSheetPortal>
         <div hlmSheetHeader>
-          <h2 hlmSheetTitle>Create a Space</h2>
-          <p hlmSheetDescription>Give your new space a name to get started.</p>
+          <h2 hlmSheetTitle>{{ 'space.create.title' | transloco }}</h2>
+          <p hlmSheetDescription>{{ 'space.create.subtitle' | transloco }}</p>
         </div>
 
         <form id="create-space-form" [formGroup]="form" (ngSubmit)="submit()"
@@ -45,11 +48,11 @@ import { SpaceService } from '../../../core/space/space.service';
               <input
                 #fileInput
                 type="file" accept="image/*" class="sr-only"
-                aria-label="Upload space avatar"
+                [attr.aria-label]="'space.create.uploadAvatar' | transloco"
                 (change)="onAvatarChange($event)" />
-              <div class="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/40">
+              <div class="relative flex h-30 w-30 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/40">
                 @if (avatarPreview()) {
-                  <img [src]="avatarPreview()" alt="Space avatar preview" class="h-full w-full object-cover" />
+                  <img [src]="avatarPreview()!" [alt]="'space.create.avatarPreview' | transloco" class="h-full w-full object-cover" />
                 } @else {
                   <ng-icon hlm name="lucideImagePlus" class="text-muted-foreground" size="lg" />
                 }
@@ -61,17 +64,25 @@ import { SpaceService } from '../../../core/space/space.service';
           </div>
 
           <hlm-field>
-            <label hlmFieldLabel for="space-name">Space name</label>
-            <input hlmInput id="space-name" type="text" placeholder="e.g. Study Group" formControlName="name" />
-            <hlm-field-error class="text-xs" validator="required">Space name is required.</hlm-field-error>
-            <hlm-field-error class="text-xs" validator="maxlength">Name must be 100 characters or fewer.</hlm-field-error>
+            <label hlmFieldLabel for="space-name">{{ 'space.create.name' | transloco }}</label>
+            <input hlmInput id="space-name" type="text"
+              [placeholder]="'space.create.namePlaceholder' | transloco"
+              formControlName="name" />
+            <hlm-field-error class="text-xs" validator="required">{{ 'space.create.nameRequired' | transloco }}</hlm-field-error>
+            <hlm-field-error class="text-xs" validator="maxlength">{{ 'space.create.nameMaxLength' | transloco }}</hlm-field-error>
           </hlm-field>
+
         </form>
 
+        <div class="flex flex-col gap-1.5 px-4 pb-2">
+          <label class="text-sm font-medium">{{ 'space.create.members' | transloco }}</label>
+          <user-search-inline (selectionChange)="selectedMembers.set($event)" />
+        </div>
+
         <div hlmSheetFooter>
-          <button hlmBtn variant="outline" type="button" hlmSheetClose>Cancel</button>
+          <button hlmBtn variant="outline" type="button" hlmSheetClose>{{ 'common.cancel' | transloco }}</button>
           <button hlmBtn type="submit" form="create-space-form" [disabled]="form.invalid || loading()">
-            {{ loading() ? 'Creating…' : 'Create Space' }}
+            {{ (loading() ? 'space.create.creating' : 'space.create.create') | transloco }}
           </button>
         </div>
       </hlm-sheet-content>
@@ -83,10 +94,12 @@ export class CreateSpaceSheet {
   private readonly _fb = inject(FormBuilder);
   private readonly _spaceService = inject(SpaceService);
   private readonly _auth = inject(AuthService);
+  private readonly _t = inject(TranslocoService);
 
   readonly loading = signal(false);
   readonly serverError = signal<string | null>(null);
   readonly avatarPreview = signal<string | null>(null);
+  readonly selectedMembers = signal<UserDtoShort[]>([]);
 
   private _avatarFile: File | null = null;
 
@@ -115,12 +128,14 @@ export class CreateSpaceSheet {
     this.loading.set(true);
     this.serverError.set(null);
 
+    const memberIds = this.selectedMembers().map(m => m.id);
+
     this._spaceService
-      .createSpace({ creatorId: userId, name: this.form.getRawValue().name!, memberIds: [] })
+      .createSpace({ creatorId: userId, name: this.form.getRawValue().name!, memberIds })
       .pipe(
         switchMap(space =>
           this._avatarFile
-            ? this._spaceService.uploadSpaceAvatar(space.id, this._avatarFile)
+            ? this._spaceService.updateSpace(space.id, space.name, this._avatarFile!)
             : of(space),
         ),
       )
@@ -129,11 +144,12 @@ export class CreateSpaceSheet {
           this.form.reset();
           this.avatarPreview.set(null);
           this._avatarFile = null;
+          this.selectedMembers.set([]);
           this.loading.set(false);
           this._sheetRef().close();
         },
         error: (err: HttpErrorResponse) => {
-          this.serverError.set(err.error?.title ?? err.error?.message ?? 'Failed to create space.');
+          this.serverError.set(err.error?.title ?? err.error?.message ?? this._t.translate('space.create.error'));
           this.loading.set(false);
         },
       });

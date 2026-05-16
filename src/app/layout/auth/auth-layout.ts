@@ -3,10 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideGalleryVerticalEnd } from '@ng-icons/lucide';
 import { LogoComponent } from '../../shared/logo';
+import { LanguageSwitcher } from '../../shared/language-switcher/language-switcher';
 
 @Component({
-  selector: 'spartan-login-two-column-reactive-form',
-  imports: [RouterOutlet, LogoComponent],
+  selector: 'auth-layout',
+  imports: [RouterOutlet, LogoComponent, LanguageSwitcher],
   providers: [provideIcons({ lucideGalleryVerticalEnd })],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +17,10 @@ import { LogoComponent } from '../../shared/logo';
   template: `
     <div class="grid min-h-svh lg:grid-cols-2">
       <div class="flex flex-col gap-4 p-6 md:p-10">
-        <logo />
+        <div class="flex items-center justify-between">
+          <logo />
+          <language-switcher />
+        </div>
         <div class="flex flex-1 items-center justify-center">
           <div class="w-full max-w-xs">
             <router-outlet />

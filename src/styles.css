@@ -79,3 +79,35 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* NestSpace feature design tokens */
+:root {
+  --bg: oklch(0.13 0.01 270);
+  --surface: oklch(0.17 0.01 270);
+  --surface2: oklch(0.21 0.01 270);
+  --surface3: oklch(0.24 0.01 270);
+  --ns-border: oklch(0.30 0.01 270);
+  --fg: oklch(0.95 0 0);
+  --fg-muted: oklch(0.65 0.01 270);
+  --fg-dim: oklch(0.45 0.01 270);
+  --accent-color: #22d3ee;
+  --accent-bg: rgb(34 211 238 / 0.12);
+  --danger: oklch(0.60 0.22 25);
+  --warn: oklch(0.78 0.18 70);
+  --ok: #2dd4bf;
+  --pink: oklch(0.70 0.22 340);
+  --ns-radius: 6px;
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
